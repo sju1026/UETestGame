@@ -1,0 +1,162 @@
+0806
+
+헤더
+- generated.h 아래에는 include 하면 안된다
+
+- GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Hello World")); : 화면출력
+- UE_LOG(LogTemp, Log, TEXT("Hello giicha2")); : 로그 출력 / Log 대신 Warning, Error등 총 7가지 표현 가능
+= C++코드를 화면으로 올리거나 BP로 만들어서 올릴 수 있다
+
+클래스 앞 : A = Actor / U = Unreal Component
+// 카메라 지지대
+UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera) / visibleAnywhere : 어디서나 볼 수 있다 / BluepringOnlyRead : BP에서는 읽기만 가능 / Category안에 띄어쓰기 시 ""무조건 사용
+	class USpringArmComponent* CameraBoom; // USpringArmComponent : "GameFramework/SpringArmComponent.h" 
+// 카메라
+UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	class UCameraComponent* FollowCamera; // UCameraComponent : "Camera/CameraComponent.h"
+
+- 생성자에서 만드는 내용
+	// 카메라 지지대
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom")); / 클래스랑 연결
+	CameraBoom->SetupAttachment(RootComponent); // RootComponent와 결합 : 기본 Component
+	CameraBoom->TargetArmLength = 800.0f; // 길이
+	CameraBoom->bUsePawnControlRotation = true; // 회전
+
+	// 카메라
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // CameraBoom과 결합 (하위 객체로 연결)
+	FollowCamera->bUsePawnControlRotation = false; // 회전 false => 카메라가 회전하여 보는것이 아닌 지지대가 회전하는 방식으로 생성
+
+- ProjectSetting : Edit Startup Map : 프로젝트 실행 시 / Game Default Map : 프로젝트 내에서 Play시 기본이 되는 맵 설정
+
+- Player 이동 h
+protected:
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void MoveForward(float value);
+	void MoveRight(float value);
+
+- Player 이동 cpp
+#include "GameFramework/DefaultPawn.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
+생성자 : GetCharacterMovement()->bOrientRotationToMovement = true; => 움직이는 방향을 쳐다보게 하기 + BP에서 Pawn의 Use Controller Rotatino Yaw를 off
+
+void AMyTestCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	check(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &AMyTestCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AMyTestCharacter::MoveRight);
+}
+
+void AMyTestCharacter::MoveForward(float value)
+{
+	if ((Controller != NULL) && (value != 0.0f)) {
+		const FRotator rot = Controller->GetControlRotation();
+		const FRotator YawRot(0, rot.Yaw, 0);
+		const FVector dircetion = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
+		AddMovementInput(dircetion, value);
+	};
+}
+
+void AMyTestCharacter::MoveRight(float value)
+{
+	if ((Controller != NULL) && (value != 0.0f)) {
+		const FRotator rot = Controller->GetControlRotation();
+		const FRotator YawRot(0, rot.Yaw, 0);
+		const FVector dircetion = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+		AddMovementInput(dircetion, value);
+	}
+}
+
+- 충돌체 = Actor
+
+- h
+UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class USphereComponent* CollisionSphere; // 충돌을 반응할 Collision
+
+UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* mStaticMesh; // Actor의 StaticMesh
+
+UPROPERTY(EditDefaultsOnly, Category = MyItem)
+	UParticleSystem* ParticleFX; // ParticleSystem
+
+UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult); // Collision을 가진 Object와 충돌 시 반응
+
+- cpp
+#include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine.h"
+#include "MyTestCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "particles/PxParticleSystem.h"
+
+생성자 함수
+	mStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("obj"));
+	RootComponent = mStaticMesh;
+
+	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+	CollisionSphere->InitSphereRadius(100.0f);
+	CollisionSphere->SetupAttachment(RootComponent);
+
+	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ATestActor::OnOverlapBegin);
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem>ParticleAsset(TEXT("/Game/StarterContent/Particles/P_Explosion.P_Explosion")); // Reference의 asset을 가져오는 방법
+	ParticleFX = ParticleAsset.Object;
+
+void ATestActor::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->IsA(AMyTestCharacter::StaticClass())) { // AMyTestCharacter라면
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Collision Touch!!"));
+
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ParticleFX, GetActorLocation());
+		Destroy();
+	}
+}
+
+- 구조체
+USTRUCT(BlueprintType)
+struct FCharacterInfo : public FTableRowBase {
+	GENERATED_BODY()
+public:
+	FCharacterInfo() {
+		CharacterName = FText::FromString("Name");
+		CharacterLevel = 1;
+		Description = FText::FromString("Your Character is ...");
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName CharacterID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText CharacterName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* CharacterThumbnail;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 CharacterLevel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText Description;
+};
+
+- UI
+- TestProjectGameModeBase.h
+UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG Game")
+	UUserWidget* CurrentWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UMG Game")
+	TSubclassOf<UUserWidget> HUDWidget; // 타입을 제한
+- cpp
+CurrentWidget = CreateWidget<UUserWidget>(GetWorld(), HUDWidget);
+	CurrentWidget->AddToViewport();
+
+TestProject.Build.cs에서 UMG를 추가
+
+- 구조체로 만든 데이터를 DataTable로 생성 -> BP에서 UI-Widget Blueprint - MyTestHUD, CharaterInfoUI 생성
+- 각 위치에 자리를 잡은 후 BP를 통해 데이터 연결 Is Variable체크
+
+
