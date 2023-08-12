@@ -7,5 +7,5 @@ namespace bb_keys
 {
 	TCHAR const* const target_location = TEXT("TargetLocation");
 	TCHAR const* const can_see_player = TEXT("CanSeePlayer");
-	// TCHAR const* const player_is_in_AttackRange = TEXT("playerisinAttackRange");
+	TCHAR const* const player_is_in_AttackRange = TEXT("playerisinAttackRange");
 }

@@ -14,16 +14,19 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "MyTestGameCharacter.h"
+#include "MyTestGameBot.h"
 #include "Engine.h"
+
 
 AMyTestGameAIController::AMyTestGameAIController(FObjectInitializer const& object_initializer) {
 	PrimaryActorTick.bCanEverTick = true;
 
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree>obj(TEXT("BehaviorTree'/Game/_My/AI/MyTestGameBot_BT.MyTestGameBot_BT'"));
-
 	if (obj.Succeeded()) {
 		btree = obj.Object;
 	}
+
+
 	behavior_tree_Comp = object_initializer.CreateDefaultSubobject<UBehaviorTreeComponent>(this, TEXT("BehaviorComp"));
 	blackboard = object_initializer.CreateDefaultSubobject<UBlackboardComponent>(this, TEXT("BlackboardComp"));
 
@@ -51,6 +54,14 @@ void AMyTestGameAIController::OnPossess(APawn* pawn)
 	if (blackboard) {
 		blackboard->InitializeBlackboard(*btree->BlackboardAsset);
 	}
+
+	/*AMyTestGameBot* Bot = Cast<AMyTestGameBot>(pawn);
+	if (Bot && Bot->BotBehavior) {
+		if (Bot->BotBehavior->BlackboardAsset) {
+			blackboard->InitializeBlackboard(*Bot->BotBehavior->BlackboardAsset);
+		}
+		behavior_tree_Comp->StartTree(*(Bot->BotBehavior));
+	}*/
 }
 
 void AMyTestGameAIController::Tick(float DeltaSeconds)

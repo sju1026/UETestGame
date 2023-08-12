@@ -5,31 +5,34 @@
 #include "CoreMinimal.h"
 #include "BasicCharacter.h"
 #include "Animation/AnimMontage.h"
-// #include "CombatInterface.h"
+#include "CombatInterface.h"
 #include "MyTestGameBot.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MYTESTGAME_API AMyTestGameBot : public ABasicCharacter
+class MYTESTGAME_API AMyTestGameBot : public ABasicCharacter, public ICombatInterface
 {
 	GENERATED_BODY()
 	
 public:
 	AMyTestGameBot();
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MyState)
+		FName MyBotName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MyState)
+		TSubclassOf<class AMyProjectile> MyBullet;
+
 	UPROPERTY(EditAnywhere, Category = Behavior)
 		class UBehaviorTree* BotBehavior;
 
-	UPROPERTY(EditAnywhere, Category = Behavior)
-		UAnimMontage* Attack_Melee;
+	virtual int melee_attack_Implementation()override;
 
-//	virtual int melee_attack_Implementation()override;
-//
-//	UAnimMontage* get_montage() const;
-//
-//private:
-//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = "true"))
-//		UAnimMontage* montage;
+	UAnimMontage* get_montage() const;
+
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* montage;
 };
