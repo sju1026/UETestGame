@@ -1,0 +1,6 @@
+언리얼 단축키
+
+- Blueprint 단축키
+코멘트로 묶기 = C
+Event Graph에서 BiginPlay 생성 = P
+Ctrl + 변수 = 바로 Get으로 가져오기

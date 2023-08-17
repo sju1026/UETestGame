@@ -1,0 +1,83 @@
+alt + line click = 경로 삭제 (Anim, BP 등등)
+F8키 = Play중 마우스 노출 및 정지
+Print Text = 글자 출력 / 아래가 먼저 실행한 것
+
+
+Material Instance
+- Play중 색을 바꿔주는 기능 = 다수 가능
+
+BP
+- Construction Script = BeginPlay전 모든 것을 메모리에 올리는 것
+- Chracter
+= Event Class : 캐릭터에게 어떤 이벤트를 발생했을 때 처리
+
+
+AI Controller Class : AI와 연결
+
+	  Move	Anim	AI	EX
+Actor	    X	  X	 X	건물, 도로
+	    
+Pawn	    O	  X	 O	장기알
+
+Character	    O	  O	 O	사람
+
+% 모두 액터에서 나왔기 때문에 대부분 Actor라고 부름
+나눠놓은 이유 = 최적화(메모리 감소 목적)
+
+Behavior Tree = AI의 동작을 코드가 아닌 트리모양으로 작성하는 방법, 체계적으로 사용
+- Task 만드는 방법 = Content창에서 BTT를 생성하던가 BT에서 New Task를 사용하던가
+* Add Event -> AI -> Event Receive Execute AI / Finish Excute가 무조건 필요 (안할경우 무한 반복) / Success가 체크 되어야 다음 Task로 넘어감
+
+- 무조건 왼쪽부터
+- 조건이 없다면 무한반복
+- 루트에서는 하나만 연결 가능(자식으로)
+- Sequence는 여러개 가능
+- Sequence와 Selector = 대부분 동시에 사용
+* Sequence = Task가 성공하여야 다음 Task로 넘어가고 마지막 Task일 경우 다시 Task처음부터 실행 / 즉 Sequence서비스가 Root바로 아래 있을 경우 Task만 나오기 때문에 위에 Sequence를 추가
+* Selector = Task가 하나만이라도 성공할 경우 동작 x / 즉 True값까지만 실행하며 왼쪽부터 오른쪽으로 왼쪽이 성공할 경우 오른쪽 실행 x / 전부 False일 경우 Selector도 False값을 가짐
+* Simple Parallel = 동시에 두가지 일을 하겠다 = Main Task를 작동하는 동시에 Composites or Task를 실행 / Main이 끝나면 부도 끝남 / Immediate(즉시) or Delayed(부가 끝날때까지 대기) 두가지 기능이 있다
+- Composites = Sequence / Selector / Simple parallel
+
+- Service = Task보다 먼저 실행되는 것(BTS) = BB에서 정보를 가져와 사용하는 것으로 움직임 설정 가능
+- Decoration = Base를 건들이지 않고 그 위에 덧씌우는 것 / 조건 할당 / 체크하는 용도로 많이 씌인다 / 기본으로 제공하는 기능들은 코드를 공개하지 않기 때문에 주로 여기에 사용
+* 우선순위 = Decorator > Servicec > Composites / Task
+
+
+Black Board = 자료를 저장하여 모두가 사용할 수 있는 변수등을 저장하는 것 / AI의 모든 기능의 중심점 
+- Task에서 사용할  때 변수를 이용하여 Set Blackboard Value **을 사용하여 변수와 key를 연결 / Key는 Blackboard Key 타입이며 Instance Enabled로 설정하여 외부에 노출시켜야 된다
+- 이름이 다른것은 상관이 없으며 BT의 Root에 BT를 등록하고 Task에서 키를 연결시켜준다 = 재사용성 증가 및 다른 클래스와 분리
+- Actor를 타입으로 설정해 줄 수 없으니 Object로 설정한다 그 후 Sensing할 경우 Object변수에 값을 할당 / 들어오는 경우 할당 나가는 경우 초기화
+
+* Sight Sensing = Player가 접근하는지 계속 확인하는 것 / 가까워지면 반응
+추신 ) Sight Sensing(눈)과 BT(머리)는 서로 연결 불가능 => Sight Sensing에서 Player 감지시 BB에 저장하여 BT로 넘긴다. => AI 알고리즘
+Perception(지각) = 감각으로 인식하는 것 / 원은 평면으로 보이지만 z값도 인식한다
+* 확인하는 방법 = Play -> ' -> numberPad 4
+
+Actor에 Tag를 이용하여 유니티의 태그처럼 사용 가능 => Actor Has Tag를 이용하여 Branch로 True일 때만 작동하게 만들기
+* 하는 이유 = BP만 사용해서는 적인지 아군인지 구분이 불가능하므로
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

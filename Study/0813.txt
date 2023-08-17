@@ -1,0 +1,21 @@
+언리얼 기본
+- 뷰포트 이동
+WASD + Mouse Right Button = 기본 이동
+QE = 위치에서 위 아래
+Alt + 회전 = 한 점을 중심으로 회전
+Mouse Left Button = 현재 높이에서 이동
+
+월드 아웃 라이너에서 F를 누르면 액터 가까이 이동
+
+오브젝트를 바닥에 붙이는 방법 - END키 활용
+
+지오메트릭스는 움직임이 불가능하다
+
+- 변수
+CTRL + 변수 드래그 = GET
+ALT + 변수 드래그 = SET
+B + 클릭 = Branch
+
+1,2,3 + Click = 숫자 갯수 - Material
+
+위젯의 경우 BeginPlay이벤트에 등록 후 변수로 승격해야 사용 가능
