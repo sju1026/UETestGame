@@ -1,0 +1,28 @@
+Actor에서 함수를 생성 => Level BP에서 값을 가져온다
+* 이 때 월드에 배치한 Actor를 Get변수로 가져와 함수를 호출한다
+ 
+
+Pawn을 움직이는 방법
+- Spawn해야 되는 위치를 Actor의 Arrow를 이용해 잡은 후 Spawn Actor From Class로 설정
+* 이 때 Arrow의 Transform의 경우 Arrow를 변수로 가져와 Get World Transform으로 가져올 수 있다
+
+- Projectile Movement = InitialSpeed / MaxSpeed 값 할당 및 Projectile Gravity Scale 수정 시 낙하방지 가능
+
+- 일정 시간이 지난 후 삭제 = Initial Life Span
+
+Widget = 간단하게 빈 깡통 주로 UI설정에 사용
+- Prograss Bar : 체력 표시할 때 많이 사용한다. 크기는 사용자 설정으로 가능하며 외곽설정시 Full이 아닌 Custom으로 설정한다
+* 이렇게 만든 위젯은 붙일 Actor의 BP로 이동하여 Widget Component를 이용해 Widget Class로 설정해 준다
+* 이때 사이즈는 Bar의 사이즈를 맞춰야 하며 World가 아닌 Screen으로 하여야 어디서든 Bar가 보이게 된다
+
+맞은것 표시
+- Bullet에 맞는 Enemy의 경우 Event AnyDamge를 이용해 자신의 체력을 표시하는 변수와 Damage를 Minus를 이용하여 차감해준다
+- Bullet의 경우 모양에 맞는 Collision을 적용하고 Collision을 메인으로 새로운 asset으로 분리한 후 On Component Hit을 이용해 Apply Damage로 데미지를 준다
+* 이 때 중요한 것은 Ohter Actor를 Damaged Actor와 연결하는 것과 Base Damage를 사용하여 얼마나 Damage를 적용하는 것이다
+* 맞은 경우 Bullet은 제거되야 되므로 Destroy Actor를 이용해 Bullet을 제거해준다
+
+체력이 0이 될 경우 파괴
+- Enermy의 widget을 변수로 가져와 Get User Widget Object를 이용하여 BP_Widget으로 Cast해 준 후 이를 변수로 승격해준다. 
+- Widget의 BP에서 Funtion을 이용하여 현재의 Energy를 가져오는 함수를 구현한 후 Enermy에서 현재체력 / 초기 체력을 이용하며 퍼센트지를 이용해 UI에 표시해준다 => 이는 UI에 퍼센트지를 표현하기 위함
+* 데미지를 입을 경우 실시간으로 체력을 변화시켜주기 위해 현재체력 / 초기체력을 구하는 식을 통해 체력을 감소시키고 만약 현재체력 <= 0 일 경우 Branch를 이용해 True일 때 Destroy Actor로 Enemy를 파괴한다 
+- 
