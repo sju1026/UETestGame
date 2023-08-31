@@ -26,24 +26,28 @@ void AMyTestCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMyTestCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMyTestCharacter::MoveRight);
+
+	PlayerInputComponent->BindAction("Attack",IE_Released , this, &AMyTestCharacter::Attack_Melee);
 }
 
 void AMyTestCharacter::MoveForward(float value)
 {
-	if ((Controller != NULL) && (value != 0.0f)) {
+	if ((Controller != NULL) && (value != 0.0f) && isDuringAttack == false) {
 		const FRotator Rot = Controller->GetControlRotation();
 		const FRotator YawRot(0, Rot.Yaw, 0);
 		const FVector Direction = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, value);
+		ComboAttack_Num = 0;
 	}
 }
 
 void AMyTestCharacter::MoveRight(float value)
 {
-	if ((Controller != NULL) && (value != 0.0f)) {
+	if ((Controller != NULL) && (value != 0.0f) && isDuringAttack == false) {
 		const FRotator Rot = Controller->GetControlRotation();
 		const FRotator YawRot(0, Rot.Yaw, 0);
 		const FVector Direction = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, value);
+		ComboAttack_Num = 0;
 	}
 }
