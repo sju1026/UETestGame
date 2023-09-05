@@ -19,11 +19,14 @@ class MYTESTGAME_API AMyTestGameBot : public ABasicCharacter, public ICombatInte
 public:
 	AMyTestGameBot();
 
-	UPROPERTY(EditAnywhere, Category = Behavior)
-		class UBehaviorTree* BotBehavior;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MyState)
+		FName MyBotName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MyState)
+		TSubclassOf<class AMyProjectile> MyBullet;
 
 	UPROPERTY(EditAnywhere, Category = Behavior)
-		UAnimMontage* Attack_Melee;
+		class UBehaviorTree* BotBehavior;
 
 	int melee_attack_Implementation()override;
 

@@ -14,6 +14,7 @@
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "GameFramework/Character.h"
 #include "MyTestCharacter.h"
+#include "MyTestGameBot.h"
 #include "blackboard_keys.h"
 
 AMyTestGameAIController::AMyTestGameAIController(FObjectInitializer const& object_intializer) {
@@ -45,6 +46,14 @@ void AMyTestGameAIController::OnPossess(APawn* pawn)
 	{
 		blackboard->InitializeBlackboard(*btree->BlackboardAsset);
 	}
+
+	/*AMyTestGameBot* Bot = Cast<AMyTestGameBot>(pawn);
+	if (Bot && Bot->BotBehavior) {
+		if (Bot->BotBehavior->BlackboardAsset) {
+			blackboard->InitializeBlackboard(*Bot->BotBehavior->BlackboardAsset);
+		}
+		behavior_tree_Comp->StartTree(*(Bot->BotBehavior));
+	}*/
 }
 
 void AMyTestGameAIController::Tick(float DeltaSeconds)
