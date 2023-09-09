@@ -19,8 +19,10 @@ class MYTESTGAME_API AMyTestGameBot : public ABasicCharacter, public ICombatInte
 public:
 	AMyTestGameBot();
 
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor)override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MyState)
-		FName MyBotName;
+		class USphereComponent* WeaponCollisionSphere;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MyState)
 		TSubclassOf<class AMyProjectile> MyBullet;

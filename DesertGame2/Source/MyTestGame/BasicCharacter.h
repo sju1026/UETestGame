@@ -15,11 +15,8 @@ public:
 	// Sets default values for this character's properties
 	ABasicCharacter();
 
-	USkeletalMeshComponent* GetSpesificPawnMesh()const;
-
-	FName GetWeaponAttachPoint() const;
-
-	void EquipWeapon(class AMyTestWeapon* Weapon);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MyState)
+		FName MyCharacterName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MyState)
 		float myHealth;
@@ -27,9 +24,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MyState)
 		float myMaxHealth;
 
+	// ============change Weapon===============
+	USkeletalMeshComponent* GetSpesificPawnMesh()const;
+
+	FName GetWeaponAttachPoint() const;
+
+	void EquipWeapon(class AMyTestWeapon* Weapon);
+
+	void OnChangeWeapon();
+
+	void WeaponAttack();
+
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 		FName WeaponAttachPoint;
@@ -43,6 +49,11 @@ protected:
 	void SetCurrentWeapon(class AMyTestWeapon* NewWeapon, class AMyTestWeapon* LastWeapon);
 
 	void SpawnDefaultInventory();
+
+	// ============================================
+
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
 	virtual void OnHit(float DamageTaken, struct FDamageEvent const& DamageEvent, class APawn* PawnInstigator, class AActor* DamageCauser);
 

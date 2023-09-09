@@ -22,6 +22,8 @@ public:
 
 	void OnEquip(const AMyTestWeapon* LastWeapon);
 
+	void OnUnEqip();
+
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category = Weapon)
 		USkeletalMeshComponent* WeaponMesh;

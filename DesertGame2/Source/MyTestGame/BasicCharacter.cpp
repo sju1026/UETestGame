@@ -34,15 +34,6 @@ FName ABasicCharacter::GetWeaponAttachPoint() const
 	return WeaponAttachPoint;
 }
 
-void ABasicCharacter::EquipWeapon(AMyTestWeapon* Weapon)
-{
-	if (Weapon)
-	{
-		SetCurrentWeapon(Weapon, CurrentWeapon);
-	}
-}
-
-
 void ABasicCharacter::AddWeapon(AMyTestWeapon* Weapon)
 {
 	if (Weapon)
@@ -58,31 +49,71 @@ void ABasicCharacter::SetCurrentWeapon(AMyTestWeapon* NewWeapon, AMyTestWeapon* 
 	{
 		LocalLastWeapon = LastWeapon;
 	}
+	else if (NewWeapon != CurrentWeapon) {
+		LocalLastWeapon = CurrentWeapon;
+	}
+
+	if (LocalLastWeapon) {
+		LocalLastWeapon->OnUnEqip();
+	}
+
+	CurrentWeapon = NewWeapon;
 
 	if (NewWeapon)
 	{
 		NewWeapon->SetOwningPawn(this);
 		NewWeapon->OnEquip(LastWeapon);
+	}
+}
 
-
+void ABasicCharacter::EquipWeapon(AMyTestWeapon* Weapon)
+{
+	if (Weapon)
+	{
+		SetCurrentWeapon(Weapon, CurrentWeapon);
 	}
 }
 
 void ABasicCharacter::SpawnDefaultInventory()
 {
 	int32 NumWeaponClasses = DefaultInventoryClasses.Num();
-	if (DefaultInventoryClasses[0])
+	/*if (DefaultInventoryClasses[0])
 	{
 		FActorSpawnParameters SpawnInfo;
 		UWorld* WRLD = GetWorld();
 		AMyTestWeapon* NewWeapon = WRLD->SpawnActor<AMyTestWeapon>(DefaultInventoryClasses[0], SpawnInfo);
 		AddWeapon(NewWeapon);
+	}*/
+
+	for (int32 i = 0; i < NumWeaponClasses; i++)
+	{
+		if (DefaultInventoryClasses[i]) {
+			FActorSpawnParameters SpawnInfo;
+
+			UWorld* WRLD = GetWorld();
+			AMyTestWeapon* NewWeapon = WRLD->SpawnActor<AMyTestWeapon>(DefaultInventoryClasses[i], SpawnInfo);
+			AddWeapon(NewWeapon);
+		}
 	}
 
 	if (Inventory.Num() > 0)
 	{
 		EquipWeapon(Inventory[0]);
 	}
+}
+
+void ABasicCharacter::OnChangeWeapon()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "change!");
+	const int32 CurrentWeaponIndex = Inventory.IndexOfByKey(CurrentWeapon);
+
+	AMyTestWeapon* NextWeapon = Inventory[(CurrentWeaponIndex + 1) % Inventory.Num()];
+
+	EquipWeapon(NextWeapon);
+}
+
+void ABasicCharacter::WeaponAttack()
+{
 
 }
 //--------------------------------------------------------------------
@@ -138,9 +169,7 @@ void ABasicCharacter::DeathAnimationEnd()
 void ABasicCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
-
 
 // Called every frame
 void ABasicCharacter::Tick(float DeltaTime)
@@ -185,27 +214,26 @@ void ABasicCharacter::Attack_Melee_End()
 
 float ABasicCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	const float myGetDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
-
 	if (myHealth <= 0.0f) {
 		return 0.0f;
 	}
 
-	if (myGetDamage > 0.0f) {
-		myHealth -= myGetDamage;
+	const float ActualDamage = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	if (ActualDamage > 0.0f) {
+		myHealth -= ActualDamage;
 	}
 
 	if (myHealth <= 0) {
 		// this->Destroy();
-		Die(myGetDamage, DamageEvent, EventInstigator, DamageCauser);
+		Die(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 	}
 
 	else {
-		OnHit(myGetDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
+		OnHit(ActualDamage, DamageEvent, EventInstigator ? EventInstigator->GetPawn() : NULL, DamageCauser);
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("HP is : %f"), myHealth));
 	}
-
-	return myGetDamage;
+	return 0.0f;
 }
 
 

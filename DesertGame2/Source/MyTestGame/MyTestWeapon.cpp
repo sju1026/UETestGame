@@ -2,8 +2,10 @@
 
 
 #include "MyTestWeapon.h"
+#include "MyTestCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Engine.h"
+#include "Engine/EngineTypes.h"
 
 // Sets default values
 AMyTestWeapon::AMyTestWeapon(const class FObjectInitializer& ObjectInitializer) :Super(ObjectInitializer)
@@ -22,6 +24,7 @@ AMyTestWeapon::AMyTestWeapon(const class FObjectInitializer& ObjectInitializer) 
 
 }
 
+// ==============================Weapon===================================
 void AMyTestWeapon::SetOwningPawn(ABasicCharacter* NewOwner)
 {
 	if (MyPawn != NewOwner)
@@ -43,7 +46,16 @@ void AMyTestWeapon::AttachMeshToPawn()
 void AMyTestWeapon::OnEquip(const AMyTestWeapon* LastWeapon)
 {
 	AttachMeshToPawn();
+	WeaponMesh->SetHiddenInGame(false);
 }
+
+void AMyTestWeapon::OnUnEqip()
+{
+	WeaponMesh->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+	WeaponMesh->SetHiddenInGame(true);
+}
+
+// =======================================================================
 
 // Called when the game starts or when spawned
 void AMyTestWeapon::BeginPlay()
@@ -61,9 +73,13 @@ void AMyTestWeapon::Tick(float DeltaTime)
 
 void AMyTestWeapon::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	if (OtherActor->IsA(AActor::StaticClass()) && MyPawn->isDuringAttack && OtherActor != MyPawn) {
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+	// AMyTestCharacter* MyPlayer = Cast<AMyTestCharacter>(StaticClass());
+
+	if (OtherActor->IsA(AActor::StaticClass())) { // && MyPlayer->isDuringAttack
 		UGameplayStatics::ApplyDamage(OtherActor, 10.0f, NULL, this, UDamageType::StaticClass());
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "ApplyDamage!");
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "ApplyDamage!");
 	}
 }
 
